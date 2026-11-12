@@ -107,6 +107,10 @@ footer li{list-style:none;padding:3px 0}
 .mb input,.mb select,.mb textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
 .mb textarea{min-height:240px}.mb img.cv{width:100%;border-radius:8px;margin-bottom:14px}.mb p{margin:0 0 12px}
 .adm{color:var(--mu);cursor:pointer;font-size:13px}
+.vc{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin:26px 0 6px;font-size:14px;color:var(--mu)}
+.vc b{color:var(--y);font-size:16px;margin-left:4px}
+.vc .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2ecc71;margin-right:6px;box-shadow:0 0 0 0 rgba(46,204,113,.7);animation:vcp 1.8s infinite}
+@keyframes vcp{70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
 </style>
 </head>
 <body>
@@ -198,6 +202,7 @@ footer li{list-style:none;padding:3px 0}
       <li><a href="https://www.facebook.com/reviewtechnology2027" target="_blank" rel="noopener">Review Technology</a></li>
     </ul></div>
   </div>
+  <div class="vc"><span>👁️ Lượt truy cập:<b id="vcTotal">…</b></span><span><i class="dot"></i>Đang online:<b id="vcOnline">…</b></span></div>
   <div class="copy"><span class="adm" id="adm">🔒 Quản trị</span><br>© 2026 Quan Anh Technology. Bảo lưu mọi quyền.</div>
 </div></footer>
 
@@ -298,6 +303,44 @@ try{
     renderPosts();renderProducts();renderWhy();seedCloud();
   });
 }catch(e){console.error('Chưa cấu hình Firebase:',e)}
+
+/* ===== ĐẾM LƯỢT TRUY CẬP & NGƯỜI ĐANG ONLINE (Firestore) ===== */
+(function(){
+  const START_TOTAL = 0;      /* số cộng thêm vào lượt truy cập (nếu muốn bắt đầu từ số khác 0) */
+  const BEAT = 60000;         /* mỗi 60 giây báo "tôi còn online" */
+  const LIVE = 150000;        /* quá 150 giây không báo => coi như đã thoát */
+  const elT=document.getElementById('vcTotal'), elO=document.getElementById('vcOnline');
+  if(!db||!elT||!elO)return;
+  const fmt=n=>Number(n).toLocaleString('vi-VN');
+
+  /* 1) Tổng lượt truy cập: +1 mỗi lần mở web (mỗi phiên trình duyệt chỉ tính 1 lần) */
+  const ref=db.collection('stats').doc('visits');
+  try{
+    if(!sessionStorage.getItem('qa_counted')){
+      sessionStorage.setItem('qa_counted','1');
+      ref.set({total:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(e=>console.error('Đếm truy cập lỗi:',e));
+    }
+  }catch(e){}
+  ref.onSnapshot(s=>{elT.textContent=fmt(START_TOTAL+((s.data()||{}).total||0))},()=>{elT.textContent='–'});
+
+  /* 2) Đang online: mỗi người mở web = 1 bản ghi, cập nhật thời gian liên tục */
+  const col=db.collection('online');
+  const id='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  const me=col.doc(id);
+  const beat=()=>{if(document.visibilityState==='hidden')return;me.set({ts:Date.now()}).catch(()=>{})};
+  beat(); setInterval(beat,BEAT);
+  document.addEventListener('visibilitychange',beat);
+  addEventListener('pagehide',()=>{me.delete().catch(()=>{})});
+
+  let list=[];
+  const draw=()=>{const now=Date.now();elO.textContent=Math.max(1,list.filter(d=>now-d.ts<LIVE).length)};
+  col.onSnapshot(s=>{
+    list=s.docs.map(d=>({id:d.id,ts:(d.data()||{}).ts||0}));
+    draw();
+    list.filter(d=>Date.now()-d.ts>600000).slice(0,5).forEach(d=>col.doc(d.id).delete().catch(()=>{})); /* dọn bản ghi cũ */
+  },()=>{elO.textContent='–'});
+  setInterval(draw,15000);
+})();
 const savePost=o=>db.collection('posts').doc(o.id).set(o);
 if(db){
   db.collection('products').onSnapshot(snap=>{
