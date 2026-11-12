@@ -147,7 +147,7 @@ footer li{list-style:none;padding:3px 0}
 <section id="tin-tuc" class="alt"><div class="wrap">
   <div class="st"><h2>Tin tức &amp; Kiến thức</h2><p>Chia sẻ kinh nghiệm về NLMT, camera và nhà thông minh</p></div>
   <div class="tabs" id="ptabs"></div>
-  <div class="pbar" id="pbar"><button class="btn" id="newp">✍️ Viết bài mới</button><button class="btn o" id="bk">💾 Sao lưu</button><button class="btn o" id="rs">📂 Khôi phục</button><button class="btn o" id="out">Thoát quản trị</button><input type="file" id="rsf" accept=".json" hidden></div>
+  <div class="pbar" id="pbar"><button class="btn" id="newp">✍️ Viết bài mới</button><button class="btn o" id="mig">☁️ Chuyển bài cũ lên cloud</button><button class="btn o" id="bk">💾 Sao lưu</button><button class="btn o" id="rs">📂 Khôi phục từ file</button><button class="btn o" id="out">Thoát quản trị</button><input type="file" id="rsf" accept=".json" hidden></div>
   <div class="grid" id="posts"></div>
 </div></section>
 
@@ -175,7 +175,19 @@ footer li{list-style:none;padding:3px 0}
   <a class="c" href="tel:0937677889">📞</a>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCf-jzvBYtgd_Axxmo1FLzxQ0Amiy8dbnc",
+  authDomain: "quananhtechnology-7193f.firebaseapp.com",
+  projectId: "quananhtechnology-7193f",
+  storageBucket: "quananhtechnology-7193f.firebasestorage.app",
+  messagingSenderId: "403683506421",
+  appId: "1:403683506421:web:534f066fb7106e2fb6edbc"
+};
+const ADMIN_EMAIL = "quananh87@gmail.com"; /* tài khoản quản trị tạo trong Firebase Authentication (không cần là email thật) */
 /* ===== DỮ LIỆU: Anh chỉ cần thêm dòng vào 2 mảng này =====
    img: để trống '' sẽ hiện biểu tượng; hoặc dán link/đường dẫn ảnh
    link: link trang chi tiết (hoặc '#') */
@@ -219,12 +231,25 @@ function renderProducts(){
     <div class="bd"><span class="tag">${p.tag}</span><h4>${p.name}</h4><div class="pr">${p.price}</div><span class="go">Xem chi tiết</span></div></a>`).join('')
     : '<p style="text-align:center;color:var(--mu);grid-column:1/-1">Đang cập nhật sản phẩm...</p>';
 }
-/* ===== BÀI VIẾT: lưu trong trình duyệt (localStorage) ===== */
-const KEY='qa_posts_v1', PIN='2468'; /* Anh đổi mã PIN quản trị ở đây */
+/* ===== BÀI VIẾT: lưu trên Firebase Firestore (mọi trình duyệt đều thấy) ===== */
+const OLD_KEY='qa_posts_v1';
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function loadPosts(){try{const t=localStorage.getItem(KEY);if(t)return JSON.parse(t)}catch(e){}return POSTS.map((p,i)=>({...p,id:'s'+i,ts:0,body:'Nội dung đang cập nhật...'}))}
-let posts=loadPosts(), pcat='all', admin=false;
-function savePosts(){try{localStorage.setItem(KEY,JSON.stringify(posts));return true}catch(e){alert('Không lưu được (ảnh quá nặng hoặc trình duyệt chặn). Hãy dùng ảnh nhỏ hơn hoặc bấm Sao lưu.');return false}}
+const seedPosts=()=>POSTS.map((p,i)=>({...p,id:'s'+i,ts:0,body:'Nội dung đang cập nhật...'}));
+let posts=seedPosts(), pcat='all', admin=false, db=null, auth=null;
+try{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db=firebase.firestore(); auth=firebase.auth();
+  db.collection('posts').onSnapshot(snap=>{
+    posts=snap.empty?seedPosts():snap.docs.map(d=>({...d.data(),id:d.id}));
+    renderPosts();
+  },err=>console.error('Không đọc được bài viết:',err));
+  auth.onAuthStateChanged(u=>{
+    admin=!!(u&&u.email&&u.email.toLowerCase()===ADMIN_EMAIL.toLowerCase());
+    if(u&&!admin){alert('Tài khoản '+u.email+' không có quyền quản trị');auth.signOut()}
+    renderPosts();
+  });
+}catch(e){console.error('Chưa cấu hình Firebase:',e)}
+const savePost=o=>db.collection('posts').doc(o.id).set(o);
 function renderPosts(){
   $('#ptabs').innerHTML=[['all','Tất cả']].concat(Object.entries(CATS).map(([k,v])=>[k,v.icon+' '+v.name])).map(([k,n])=>`<button class="tab ${k===pcat?'on':''}" data-p="${k}">${n}</button>`).join('');
   document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pcat=b.dataset.p;renderPosts()});
@@ -241,21 +266,27 @@ function readPost(id){const p=posts.find(x=>x.id===id);if(!p)return;
 function editPost(id){const p=posts.find(x=>x.id===id)||{cat:'nlmt',title:'',body:'',img:''};
   openM(`<h3>${id?'Sửa bài viết':'Viết bài mới'}</h3><label>Hạng mục</label><select id="fc">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===p.cat?'selected':''}>${v.name}</option>`).join('')}</select><label>Tiêu đề</label><input id="ft" value="${esc(p.title)}"><label>Ảnh đại diện (chọn file hoặc dán link)</label><input type="file" id="ff" accept="image/*"><input id="fi" placeholder="https://..." value="${p.img&&p.img.startsWith('data:')?'':esc(p.img)}" style="margin-top:6px"><label>Nội dung (xuống dòng 2 lần để tách đoạn)</label><textarea id="fb">${esc(p.body)}</textarea><button class="btn" style="margin-top:16px" id="fs">💾 Lưu bài</button>`);
   let data=p.img&&p.img.startsWith('data:')?p.img:'';
-  $('#ff').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',.75)};im.src=r.result};r.readAsDataURL(f)};
+  $('#ff').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,700/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',.7)};im.src=r.result};r.readAsDataURL(f)};
   $('#fs').onclick=()=>{const t=$('#ft').value.trim();if(!t){alert('Nhập tiêu đề');return}
     const o={id:p.id||'p'+Date.now(),cat:$('#fc').value,title:t,body:$('#fb').value,img:data||$('#fi').value.trim(),date:p.date||new Date().toLocaleDateString('vi-VN'),ts:p.ts||Date.now()};
-    const i=posts.findIndex(x=>x.id===o.id);i<0?posts.push(o):posts[i]=o;
-    if(savePosts()){closeM();pcat=o.cat;renderPosts()}}}
+    if(o.img.length>900000){alert('Ảnh quá nặng, hãy chọn ảnh nhỏ hơn');return}
+    savePost(o).then(()=>{closeM();pcat=o.cat}).catch(e=>alert('Không lưu được: '+e.message))}}
 $('#posts').onclick=e=>{const E=e.target.dataset.e,D=e.target.dataset.d;
   if(E)return editPost(E);
-  if(D){if(confirm('Xóa bài này?')){posts=posts.filter(x=>x.id!==D);savePosts();renderPosts()}return}
+  if(D){if(confirm('Xóa bài này?')){db.collection('posts').doc(D).delete().catch(e=>alert('Không xóa được: '+e.message))}return}
   const c=e.target.closest('.card');if(c)readPost(c.dataset.id)};
-$('#adm').onclick=()=>{if(prompt('Nhập mã PIN quản trị')===PIN){admin=true;renderPosts();location.hash='#tin-tuc'}else alert('Sai mã PIN')};
-$('#out').onclick=()=>{admin=false;renderPosts()};
+$('#adm').onclick=()=>{if(!auth){alert('Chưa cấu hình Firebase');return}if(admin){location.hash='#tin-tuc';return}
+  const c=prompt('Nhập mã quản trị');if(!c)return;
+  auth.signInWithEmailAndPassword(ADMIN_EMAIL,c).then(()=>{location.hash='#tin-tuc'}).catch(e=>alert(/invalid|wrong|not-found/.test(e.code)?'Sai mã quản trị':'Đăng nhập lỗi: '+e.message))};
+$('#out').onclick=()=>{auth&&auth.signOut()};
 $('#newp').onclick=()=>editPost(null);
 $('#bk').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(posts)],{type:'application/json'}));a.download='quananh-baiviet-'+new Date().toISOString().slice(0,10)+'.json';a.click()};
 $('#rs').onclick=()=>$('#rsf').click();
-$('#rsf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)&&confirm('Khôi phục '+d.length+' bài? Bài hiện tại sẽ bị thay thế.')){posts=d;savePosts();renderPosts()}}catch(x){alert('File không hợp lệ')}};r.readAsText(f)};
+const uploadAll=arr=>{const b=db.batch();arr.forEach((p,i)=>{const id=p.id||('p'+Date.now()+i);b.set(db.collection('posts').doc(id),{...p,id})});return b.commit()};
+$('#rsf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)&&d.length<=400&&confirm('Đưa '+d.length+' bài lên cloud?'))uploadAll(d).then(()=>alert('Xong')).catch(x=>alert('Lỗi: '+x.message))}catch(x){alert('File không hợp lệ')}};r.readAsText(f)};
+$('#mig').onclick=()=>{let old=[];try{old=JSON.parse(localStorage.getItem(OLD_KEY)||'[]').filter(p=>p.ts>0)}catch(x){}
+  if(!old.length){alert('Trình duyệt này không có bài cũ nào cần chuyển (hãy mở bằng trình duyệt A đã viết bài).');return}
+  if(confirm('Đưa '+old.length+' bài đang lưu trong trình duyệt này lên cloud?'))uploadAll(old).then(()=>alert('Đã chuyển xong')).catch(x=>alert('Lỗi: '+x.message))};
 document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => {cur = a.dataset.go; renderTabs(); renderProducts();}));
 renderTabs(); renderProducts(); renderPosts();
 </script>
