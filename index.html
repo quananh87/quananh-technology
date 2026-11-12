@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quan Anh Technology | Năng lượng mặt trời – Camera quan sát – Smarthome</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Quan Anh Technology | Năng lượng mặt trời – Camera quan sát – Smarthome">
+<meta property="og:description" content="Thiết kế – cung cấp – thi công trọn gói. Hotline/Zalo 0937 677 889.">
+<meta property="og:image" content="https://quananh87.github.io/quananh-technology/banner.jpg">
 <meta name="description" content="Giải pháp điện năng lượng mặt trời, camera quan sát và nhà thông minh Smarthome. Hotline 0937 677 889.">
 <style>
 :root{--y:#FFC400;--y2:#FFD84D;--bg:#0B0B0B;--bg2:#151515;--bg3:#1E1E1E;--tx:#F2F2F2;--mu:#A8A8A8;--bd:#2B2B2B}
@@ -27,6 +31,14 @@ nav a:hover{color:var(--y)}
 .hero h1 span{color:var(--y)}
 .hero p{color:var(--mu);max-width:600px;margin:18px 0 28px;font-size:18px}
 .hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+.bnr{background:#0B0B0B;padding:22px 0 0}
+.bnr img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--bd);cursor:zoom-in;box-shadow:0 10px 34px rgba(0,0,0,.5)}
+.bnr+.hero{padding-top:50px}
+.soc{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.soc a{background:#000;color:var(--y);padding:9px 18px;border-radius:30px;font-weight:700;font-size:14px;transition:.2s}
+.soc a:hover{transform:translateY(-2px);background:#1a1a1a}
+.contact .mail{display:block;margin-top:14px;font-weight:700;font-size:17px}
+footer a:hover{color:var(--y)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
 .stat{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--y);padding:18px;border-radius:8px}
 .stat b{font-size:28px;color:var(--y);display:block}.stat span{color:var(--mu);font-size:14px}
@@ -64,7 +76,7 @@ section{padding:70px 0}
 .contact .tel{display:inline-block;font-size:clamp(30px,6vw,52px);font-weight:900;margin:12px 0;background:#000;color:var(--y);padding:6px 28px;border-radius:10px}
 .contact .btn{background:#000;color:var(--y)}
 footer{background:#000;border-top:3px solid var(--y);padding:44px 0 90px;color:var(--mu);font-size:14px}
-footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:30px}
 footer h5{color:var(--y);font-size:16px;margin-bottom:10px}
 footer li{list-style:none;padding:3px 0}
 .copy{text-align:center;margin-top:30px;padding-top:18px;border-top:1px solid var(--bd)}
@@ -74,7 +86,7 @@ footer li{list-style:none;padding:3px 0}
 .float .z{background:#0068FF;color:#fff;font-size:13px}
 @keyframes pl{0%{box-shadow:0 0 0 0 rgba(255,196,0,.6)}100%{box-shadow:0 0 0 18px rgba(255,196,0,0)}}
 @media(max-width:860px){nav{display:none}.cats,.why,.stats{grid-template-columns:1fr 1fr}footer .cols{grid-template-columns:1fr}.hero{padding:60px 0}}
-@media(max-width:520px){.cats,.why,.stats{grid-template-columns:1fr}.top .wrap{justify-content:center}}
+@media(max-width:520px){header .wrap{height:60px;gap:8px}.logo{font-size:15px;white-space:nowrap;letter-spacing:0}header .btn{padding:8px 10px;font-size:12px;white-space:nowrap}.bnr{padding-top:12px}.bnr .wrap{padding:0 10px}.bnr img{border-radius:10px}.bnr+.hero{padding-top:36px}.cats,.why,.stats{grid-template-columns:1fr}.top .wrap{justify-content:center}}
 
 .pbar{display:none;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:22px;padding:12px;border:1px dashed var(--y);border-radius:10px}
 .pbar.on{display:flex}.pbar .btn{padding:8px 16px;font-size:14px}
@@ -103,6 +115,10 @@ footer li{list-style:none;padding:3px 0}
   </nav>
   <a class="btn" href="tel:0937677889">Gọi 0937 677 889</a>
 </div></header>
+
+<div class="bnr"><div class="wrap">
+  <img id="bn" src="banner.jpg" srcset="banner-800.jpg 800w, banner.jpg 1600w" sizes="(max-width:1220px) 100vw, 1180px" width="1600" height="900" alt="Quan Anh Technology – Giải pháp công nghệ toàn diện: điện mặt trời, smarthome, camera quan sát" fetchpriority="high">
+</div></div>
 
 <div class="hero"><div class="wrap">
   <h1>Giải pháp <span>Năng lượng mặt trời</span>, Camera &amp; Smarthome cho ngôi nhà của bạn</h1>
@@ -157,14 +173,25 @@ footer li{list-style:none;padding:3px 0}
     <a class="tel" href="tel:0937677889">0937 677 889</a>
     <p style="margin-bottom:18px">Khảo sát và báo giá miễn phí – phản hồi nhanh trong ngày</p>
     <a class="btn" href="tel:0937677889">📞 Gọi ngay</a>
+    <a class="mail" href="mailto:quananh87@gmail.com">✉️ quananh87@gmail.com</a>
+    <div class="soc">
+      <a href="https://www.facebook.com/quananhtechnology/" target="_blank" rel="noopener">📘 Quan Anh Technology</a>
+      <a href="https://www.facebook.com/cameraquananh/" target="_blank" rel="noopener">📘 Camera Quan Anh</a>
+      <a href="https://www.facebook.com/reviewtechnology2027" target="_blank" rel="noopener">📘 Review Technology</a>
+    </div>
   </div>
 </div></section>
 
 <footer><div class="wrap">
   <div class="cols">
-    <div><h5>QUAN ANH TECHNOLOGY</h5><p>Năng lượng mặt trời – Camera quan sát – Smarthome.</p><p>Hotline: <a href="tel:0937677889" style="color:var(--y)">0937 677 889</a></p><p>Địa chỉ: (cập nhật)</p><p>Email: (cập nhật)</p></div>
+    <div><h5>QUAN ANH TECHNOLOGY</h5><p>Năng lượng mặt trời – Camera quan sát – Smarthome.</p><p>Hotline: <a href="tel:0937677889" style="color:var(--y)">0937 677 889</a></p><p>Địa chỉ: (cập nhật)</p><p>Email: <a href="mailto:quananh87@gmail.com" style="color:var(--y)">quananh87@gmail.com</a></p></div>
     <div><h5>Hạng mục</h5><ul><li>Năng lượng mặt trời</li><li>Camera quan sát</li><li>Smarthome</li></ul></div>
     <div><h5>Liên kết</h5><ul><li><a href="#san-pham">Sản phẩm</a></li><li><a href="#tin-tuc">Tin tức</a></li><li><a href="#lien-he">Liên hệ</a></li></ul></div>
+    <div><h5>Fanpage</h5><ul>
+      <li><a href="https://www.facebook.com/quananhtechnology/" target="_blank" rel="noopener">Quan Anh Technology</a></li>
+      <li><a href="https://www.facebook.com/cameraquananh/" target="_blank" rel="noopener">Camera Quan Anh</a></li>
+      <li><a href="https://www.facebook.com/reviewtechnology2027" target="_blank" rel="noopener">Review Technology</a></li>
+    </ul></div>
   </div>
   <div class="copy"><span class="adm" id="adm">🔒 Quản trị</span><br>© 2026 Quan Anh Technology. Bảo lưu mọi quyền.</div>
 </div></footer>
@@ -288,6 +315,7 @@ $('#mig').onclick=()=>{let old=[];try{old=JSON.parse(localStorage.getItem(OLD_KE
   if(!old.length){alert('Trình duyệt này không có bài cũ nào cần chuyển (hãy mở bằng trình duyệt A đã viết bài).');return}
   if(confirm('Đưa '+old.length+' bài đang lưu trong trình duyệt này lên cloud?'))uploadAll(old).then(()=>alert('Đã chuyển xong')).catch(x=>alert('Lỗi: '+x.message))};
 document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => {cur = a.dataset.go; renderTabs(); renderProducts();}));
+$('#bn').onclick=()=>openM('<img class="cv" src="banner.jpg" alt="">');
 renderTabs(); renderProducts(); renderPosts();
 </script>
 </body>
