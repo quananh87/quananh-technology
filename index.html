@@ -68,8 +68,17 @@ section{padding:70px 0}
 .card .pr{color:var(--y2);font-weight:700;margin-top:auto}
 .card .go{margin-top:8px;font-size:14px;color:#000;background:var(--y);text-align:center;padding:8px;border-radius:5px;font-weight:700}
 .why{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.why div{text-align:center;padding:24px 16px;background:var(--bg);border:1px solid var(--bd);border-radius:10px}
+.why>div{text-align:center;padding:24px 18px;background:var(--bg);border:1px solid var(--bd);border-radius:10px}
 .why .n{font-size:34px}.why h4{color:var(--y);margin:8px 0 4px}.why p{color:var(--mu);font-size:14px}
+.why ul{list-style:none;text-align:left;margin-top:14px;border-top:1px solid var(--bd);padding-top:10px}
+.why li{font-size:14px;padding:4px 0 4px 22px;position:relative;line-height:1.5}
+.why li:before{content:"✓";position:absolute;left:0;color:var(--y);font-weight:800}
+.card.pc{cursor:pointer}
+.mb .prc{color:var(--y2);font-weight:800;font-size:24px;margin:4px 0 14px}
+.mb .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.mb .sub{color:var(--mu);font-size:13px;font-weight:700;text-transform:uppercase}
+.mb .blk{border:1px solid var(--bd);border-radius:8px;padding:12px;margin-top:14px}
+.mb .blk textarea{min-height:100px}
 .contact{background:linear-gradient(135deg,var(--y),#E0A800);color:#000;border-radius:14px;padding:44px 30px;text-align:center}
 .contact h2{font-size:clamp(24px,3.5vw,34px)}
 .contact .tel{display:inline-block;font-size:clamp(30px,6vw,52px);font-weight:900;margin:12px 0;background:#000;color:var(--y);padding:6px 28px;border-radius:10px}
@@ -146,17 +155,14 @@ footer li{list-style:none;padding:3px 0}
 <section id="san-pham" class="alt"><div class="wrap">
   <div class="st"><h2>Sản phẩm</h2><p>Chọn hạng mục để xem sản phẩm</p></div>
   <div class="tabs" id="tabs"></div>
+  <div class="pbar" id="prbar"><button class="btn" id="newpr">➕ Thêm sản phẩm</button></div>
   <div class="grid" id="products"></div>
 </div></section>
 
 <section><div class="wrap">
   <div class="st"><h2>Vì sao chọn chúng tôi</h2></div>
-  <div class="why">
-    <div><div class="n">🛠️</div><h4>Thi công trọn gói</h4><p>Khảo sát, thiết kế, lắp đặt, bàn giao</p></div>
-    <div><div class="n">✅</div><h4>Thiết bị chính hãng</h4><p>Rõ nguồn gốc, bảo hành đầy đủ</p></div>
-    <div><div class="n">💰</div><h4>Báo giá minh bạch</h4><p>Chi tiết từng hạng mục, không phát sinh</p></div>
-    <div><div class="n">🤝</div><h4>Hậu mãi tận tâm</h4><p>Bảo trì và hỗ trợ kỹ thuật lâu dài</p></div>
-  </div>
+  <div class="pbar" id="wbar"><button class="btn" id="wedit">✏️ Sửa nội dung mục này</button></div>
+  <div class="why" id="why"></div>
 </div></section>
 
 <section id="tin-tuc" class="alt"><div class="wrap">
@@ -248,20 +254,37 @@ const media = (img, icon) => img ? `<img src="${img}" alt="" loading="lazy">` : 
 function renderTabs(){
   $('#tabs').innerHTML = Object.entries(CATS).map(([k,v]) =>
     `<button class="tab ${k===cur?'on':''}" data-k="${k}">${v.icon} ${v.name}</button>`).join('');
-  document.querySelectorAll('.tab').forEach(b => b.onclick = () => {cur = b.dataset.k; renderTabs(); renderProducts();});
+  document.querySelectorAll('#tabs .tab').forEach(b => b.onclick = () => {cur = b.dataset.k; renderTabs(); renderProducts();});
 }
 function renderProducts(){
-  const list = PRODUCTS.filter(p => p.cat === cur);
-  $('#products').innerHTML = list.length ? list.map(p => `
-    <a class="card" href="${p.link}"><div class="im">${media(p.img, CATS[p.cat].icon)}</div>
-    <div class="bd"><span class="tag">${p.tag}</span><h4>${p.name}</h4><div class="pr">${p.price}</div><span class="go">Xem chi tiết</span></div></a>`).join('')
-    : '<p style="text-align:center;color:var(--mu);grid-column:1/-1">Đang cập nhật sản phẩm...</p>';
+  $('#prbar').classList.toggle('on',admin);
+  const list=prods.filter(p=>p.cat===cur).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  $('#products').innerHTML=list.length?list.map(p=>`<div class="card pc" data-pid="${esc(p.id)}"><div class="im">${media(esc(p.img),(CATS[p.cat]||{}).icon||'📦')}</div><div class="bd"><span class="tag">${esc(p.tag)}</span><h4>${esc(p.name)}</h4><div class="pr">${esc(p.price)}</div><span class="go">Xem chi tiết</span>${admin?`<div class="mini"><button data-pe="${esc(p.id)}">Sửa</button><button data-pd="${esc(p.id)}">Xóa</button></div>`:''}</div></div>`).join(''):'<p style="text-align:center;color:var(--mu);grid-column:1/-1">Đang cập nhật sản phẩm...</p>';
+}
+function renderWhy(){
+  $('#wbar').classList.toggle('on',admin);
+  $('#why').innerHTML=why.map(w=>`<div><div class="n">${esc(w.n)}</div><h4>${esc(w.t)}</h4><p>${esc(w.d)}</p>${w.pts&&w.pts.length?`<ul>${w.pts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</div>`).join('');
 }
 /* ===== BÀI VIẾT: lưu trên Firebase Firestore (mọi trình duyệt đều thấy) ===== */
 const OLD_KEY='qa_posts_v1';
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seedPosts=()=>POSTS.map((p,i)=>({...p,id:'s'+i,ts:0,body:'Nội dung đang cập nhật...'}));
 let posts=seedPosts(), pcat='all', admin=false, db=null, auth=null;
+const seedProd=()=>PRODUCTS.map((p,i)=>({...p,id:'ps'+i,ts:i,desc:''}));
+let prods=seedProd(), prodEmpty=false, seeding=false;
+const WHY0=[
+ {n:'🛠️',t:'Thi công trọn gói',d:'Từ khảo sát đến bàn giao, chỉ một đầu mối phụ trách',pts:['Khảo sát tận nơi, tư vấn giải pháp phù hợp nhu cầu','Thiết kế phương án và sơ đồ đấu nối rõ ràng','Lắp đặt gọn gàng, đúng kỹ thuật, an toàn điện','Nghiệm thu và hướng dẫn sử dụng cho gia chủ']},
+ {n:'✅',t:'Thiết bị chính hãng',d:'Rõ nguồn gốc, bảo hành đầy đủ',pts:['Thương hiệu uy tín như Hikvision, Dahua','Thiết bị rõ nguồn gốc xuất xứ','Bảo hành theo chính sách của hãng','Tư vấn đúng thiết bị, đúng công suất cần dùng']},
+ {n:'💰',t:'Báo giá minh bạch',d:'Chi tiết từng hạng mục, không phát sinh',pts:['Báo giá rõ thiết bị, vật tư và nhân công','Khảo sát và báo giá hoàn toàn miễn phí','Chốt giá trước khi thi công','Phản hồi nhanh trong ngày']},
+ {n:'🤝',t:'Hậu mãi tận tâm',d:'Bảo trì và hỗ trợ kỹ thuật lâu dài',pts:['Hỗ trợ kỹ thuật 24/7 qua Hotline và Zalo','Kiểm tra, bảo trì hệ thống khi khách cần','Hướng dẫn xem camera, theo dõi điện trên điện thoại','Hỗ trợ xử lý sự cố nhanh, có thể hỗ trợ từ xa']}
+];
+let why=WHY0;
+function seedCloud(){
+  if(!db||!admin||!prodEmpty||seeding)return;
+  seeding=true;const b=db.batch();
+  seedProd().forEach(p=>b.set(db.collection('products').doc(p.id),p));
+  b.commit().catch(e=>console.error('Không đưa sản phẩm mẫu lên cloud:',e)).finally(()=>{seeding=false});
+}
 try{
   firebase.initializeApp(FIREBASE_CONFIG);
   db=firebase.firestore(); auth=firebase.auth();
@@ -272,10 +295,43 @@ try{
   auth.onAuthStateChanged(u=>{
     admin=!!(u&&u.email&&u.email.toLowerCase()===ADMIN_EMAIL.toLowerCase());
     if(u&&!admin){alert('Tài khoản '+u.email+' không có quyền quản trị');auth.signOut()}
-    renderPosts();
+    renderPosts();renderProducts();renderWhy();seedCloud();
   });
 }catch(e){console.error('Chưa cấu hình Firebase:',e)}
 const savePost=o=>db.collection('posts').doc(o.id).set(o);
+if(db){
+  db.collection('products').onSnapshot(snap=>{
+    prodEmpty=snap.empty;
+    prods=snap.empty?seedProd():snap.docs.map(d=>({...d.data(),id:d.id}));
+    renderProducts();seedCloud();
+  },err=>console.error('Không đọc được sản phẩm:',err));
+  db.collection('site').doc('why').onSnapshot(d=>{
+    const it=d.exists&&d.data().items;
+    why=it&&it.length?it:WHY0;renderWhy();
+  },err=>console.error('Không đọc được nội dung:',err));
+}
+function viewProduct(id){const p=prods.find(x=>x.id===id);if(!p)return;
+  const d=(p.desc||'').trim()?esc(p.desc).split(/\n{2,}/).map(t=>`<p>${t.replace(/\n/g,'<br>')}</p>`).join(''):'<p>Liên hệ để được tư vấn và báo giá chi tiết.</p>';
+  openM((p.img?`<img class="cv" src="${esc(p.img)}" alt="">`:'')+`<div class="sub">${esc(p.tag)}</div><h3>${esc(p.name)}</h3><div class="prc">${esc(p.price)}</div>${d}<div class="acts"><a class="btn" href="tel:0937677889">📞 Gọi tư vấn</a><a class="btn o" href="https://zalo.me/0937677889" target="_blank" rel="noopener">💬 Nhắn Zalo</a></div>`)}
+function editProduct(id){
+  const p=prods.find(x=>x.id===id)||{cat:cur,name:'',tag:'',price:'Liên hệ',img:'',desc:''};
+  openM(`<h3>${id?'Sửa sản phẩm':'Thêm sản phẩm'}</h3><label>Hạng mục</label><select id="qc">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===p.cat?'selected':''}>${v.name}</option>`).join('')}</select><label>Tên sản phẩm</label><input id="qn" value="${esc(p.name)}"><label>Nhãn nhỏ (vd: Camera, Inverter)</label><input id="qt" value="${esc(p.tag)}"><label>Giá (vd: Liên hệ hoặc 2.500.000đ)</label><input id="qp" value="${esc(p.price)}"><label>Ảnh sản phẩm (chọn file hoặc dán link)</label><input type="file" id="qf" accept="image/*"><input id="qi" placeholder="https://..." value="${p.img&&p.img.startsWith('data:')?'':esc(p.img)}" style="margin-top:6px"><label>Mô tả chi tiết (xuống dòng 2 lần để tách đoạn)</label><textarea id="qd">${esc(p.desc)}</textarea><button class="btn" style="margin-top:16px" id="qs">💾 Lưu sản phẩm</button>`);
+  let data=p.img&&p.img.startsWith('data:')?p.img:'';
+  $('#qf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,600/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',.7)};im.src=r.result};r.readAsDataURL(f)};
+  $('#qs').onclick=()=>{const n=$('#qn').value.trim();if(!n){alert('Nhập tên sản phẩm');return}
+    const o={id:p.id||'pr'+Date.now(),cat:$('#qc').value,name:n,tag:$('#qt').value.trim(),price:$('#qp').value.trim()||'Liên hệ',img:data||$('#qi').value.trim(),desc:$('#qd').value,link:'#',ts:p.ts!=null?p.ts:Date.now()};
+    if(o.img.length>700000){alert('Ảnh quá nặng, hãy chọn ảnh nhỏ hơn');return}
+    db.collection('products').doc(o.id).set(o).then(()=>{closeM();cur=o.cat;renderTabs();renderProducts()}).catch(e=>alert('Không lưu được: '+e.message))}}
+function editWhy(){
+  openM('<h3>Sửa mục "Vì sao chọn chúng tôi"</h3>'+why.map((w,i)=>`<div class="blk"><label style="margin-top:0">Mục ${i+1} – biểu tượng (emoji)</label><input id="wn${i}" value="${esc(w.n)}"><label>Tiêu đề</label><input id="wt${i}" value="${esc(w.t)}"><label>Mô tả ngắn</label><input id="wd${i}" value="${esc(w.d)}"><label>Các ý chi tiết (mỗi dòng một ý)</label><textarea id="wp${i}">${esc((w.pts||[]).join('\n'))}</textarea></div>`).join('')+'<button class="btn" style="margin-top:16px" id="ws">💾 Lưu nội dung</button>');
+  $('#ws').onclick=()=>{const items=why.map((_,i)=>({n:$('#wn'+i).value.trim(),t:$('#wt'+i).value.trim(),d:$('#wd'+i).value.trim(),pts:$('#wp'+i).value.split('\n').map(x=>x.trim()).filter(Boolean)}));
+    db.collection('site').doc('why').set({items}).then(closeM).catch(e=>alert('Không lưu được: '+e.message))}}
+$('#products').onclick=e=>{const E=e.target.dataset.pe,D=e.target.dataset.pd;
+  if(E)return editProduct(E);
+  if(D){if(confirm('Xóa sản phẩm này?'))db.collection('products').doc(D).delete().catch(x=>alert('Không xóa được: '+x.message));return}
+  const c=e.target.closest('.card');if(c)viewProduct(c.dataset.pid)};
+$('#newpr').onclick=()=>editProduct(null);
+$('#wedit').onclick=editWhy;
 function renderPosts(){
   $('#ptabs').innerHTML=[['all','Tất cả']].concat(Object.entries(CATS).map(([k,v])=>[k,v.icon+' '+v.name])).map(([k,n])=>`<button class="tab ${k===pcat?'on':''}" data-p="${k}">${n}</button>`).join('');
   document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pcat=b.dataset.p;renderPosts()});
@@ -315,7 +371,7 @@ $('#mig').onclick=()=>{let old=[];try{old=JSON.parse(localStorage.getItem(OLD_KE
   if(confirm('Đưa '+old.length+' bài đang lưu trong trình duyệt này lên cloud?'))uploadAll(old).then(()=>alert('Đã chuyển xong')).catch(x=>alert('Lỗi: '+x.message))};
 document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', () => {cur = a.dataset.go; renderTabs(); renderProducts();}));
 $('#bn').onclick=()=>openM('<img class="cv" src="banner.jpg" alt="">');
-renderTabs(); renderProducts(); renderPosts();
+renderTabs(); renderProducts(); renderPosts(); renderWhy();
 </script>
 </body>
 </html>
