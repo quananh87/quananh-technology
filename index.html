@@ -83,6 +83,13 @@ section{padding:70px 0}
 .contact h2{font-size:clamp(24px,3.5vw,34px)}
 .contact .tel{display:inline-block;font-size:clamp(30px,6vw,52px);font-weight:900;margin:12px 0;background:#000;color:var(--y);padding:6px 28px;border-radius:10px}
 .contact .btn{background:#000;color:var(--y)}
+.map{margin-top:28px;text-align:center}
+.map h3{color:var(--y);font-size:clamp(20px,3vw,26px);margin-bottom:6px}
+.map p{color:var(--mu);margin-bottom:16px}
+.map .mf{border:1px solid var(--bd);border-radius:14px;overflow:hidden;background:var(--bg2)}
+.map iframe{display:block;width:100%;height:400px;border:0}
+.map .btn{margin-top:16px}
+@media(max-width:520px){.map iframe{height:300px}}
 footer{background:#000;border-top:3px solid var(--y);padding:44px 0 90px;color:var(--mu);font-size:14px}
 footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:30px}
 footer h5{color:var(--y);font-size:16px;margin-bottom:10px}
@@ -189,11 +196,17 @@ footer li{list-style:none;padding:3px 0}
       <a href="https://www.facebook.com/reviewtechnology2027" target="_blank" rel="noopener">📘 Review Technology</a>
     </div>
   </div>
+  <div class="map" id="ban-do">
+    <h3>📍 Vị trí của chúng tôi</h3>
+    <p>Viễn Thông Tin Học Quan Anh</p>
+    <div class="mf"><iframe src="https://www.google.com/maps?q=10.8541041,106.6632718&z=17&output=embed" title="Bản đồ Viễn Thông Tin Học Quan Anh" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    <a class="btn" href="https://www.google.com/maps/place/VI%E1%BB%84N+TH%C3%94NG+TIN+H%E1%BB%8CC+QUAN+ANH/@10.8541041,106.6606969,17z/data=!3m1!4b1!4m6!3m5!1s0x317529a59d69ca7d:0x501157dd7848fa81!8m2!3d10.8541041!4d106.6632718!16s%2Fg%2F11f159dhrf" target="_blank" rel="noopener">🧭 Chỉ đường trên Google Maps</a>
+  </div>
 </div></section>
 
 <footer><div class="wrap">
   <div class="cols">
-    <div><h5>QUAN ANH TECHNOLOGY</h5><p>Năng lượng mặt trời – Camera quan sát – Smarthome.</p><p>Hotline: <a href="tel:0937677889" style="color:var(--y)">0937 677 889</a></p><p>Địa chỉ: (cập nhật)</p><p>Email: <a href="mailto:quananh87@gmail.com" style="color:var(--y)">quananh87@gmail.com</a></p></div>
+    <div><h5>QUAN ANH TECHNOLOGY</h5><p>Năng lượng mặt trời – Camera quan sát – Smarthome.</p><p>Hotline: <a href="tel:0937677889" style="color:var(--y)">0937 677 889</a></p><p>Địa chỉ: <a href="https://www.google.com/maps/place/VI%E1%BB%84N+TH%C3%94NG+TIN+H%E1%BB%8CC+QUAN+ANH/@10.8541041,106.6606969,17z/data=!3m1!4b1!4m6!3m5!1s0x317529a59d69ca7d:0x501157dd7848fa81!8m2!3d10.8541041!4d106.6632718!16s%2Fg%2F11f159dhrf" target="_blank" rel="noopener" style="color:var(--y)">Xem vị trí trên Google Maps</a></p><p>Email: <a href="mailto:quananh87@gmail.com" style="color:var(--y)">quananh87@gmail.com</a></p></div>
     <div><h5>Hạng mục</h5><ul><li>Năng lượng mặt trời</li><li>Camera quan sát</li><li>Smarthome</li></ul></div>
     <div><h5>Liên kết</h5><ul><li><a href="#san-pham">Sản phẩm</a></li><li><a href="#tin-tuc">Tin tức</a></li><li><a href="#lien-he">Liên hệ</a></li></ul></div>
     <div><h5>Fanpage</h5><ul>
